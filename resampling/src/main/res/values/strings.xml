@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Resampling</string>
+    <string name="input_sample_rate">Input Sample Rate</string>
+    <string name="output_sample_rate">Output Sample Rate</string>
+</resources>

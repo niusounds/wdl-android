@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="SliderLabel" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:layout_marginHorizontal">8dp</item>
+    </style>
+</resources>

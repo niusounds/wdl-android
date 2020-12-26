@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.niusounds.simplepitchshifter.ui.ControlViewModel"
+            />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.MainActivity"
+        >
+
+        <TextView
+            android:id="@+id/label"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{vm.processing ? @string/label_while_playing : @string/label}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/label"
+            />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/pitch_slider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:value="0"
+            android:valueFrom="@{vm.minPitch}"
+            android:valueTo="@{vm.maxPitch}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label"
+            />
+
+        <TextView
+            android:id="@+id/min_pitch"
+            style="@style/SliderLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{Integer.toString(vm.minPitch)}"
+            app:layout_constraintStart_toStartOf="@id/pitch_slider"
+            app:layout_constraintTop_toBottomOf="@id/pitch_slider"
+            />
+
+        <TextView
+            android:id="@+id/max_pitch"
+            style="@style/SliderLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{Integer.toString(vm.maxPitch)}"
+            app:layout_constraintEnd_toEndOf="@id/pitch_slider"
+            app:layout_constraintTop_toBottomOf="@id/pitch_slider"
+            />
+
+        <TextView
+            android:id="@+id/default_pitch"
+            style="@style/SliderLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="default"
+            app:layout_constraintEnd_toEndOf="@id/pitch_slider"
+            app:layout_constraintStart_toStartOf="@id/pitch_slider"
+            app:layout_constraintTop_toBottomOf="@id/pitch_slider"
+            />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:onClick="@{() -> vm.togglePlaying()}"
+            android:src="@{vm.processing ? @drawable/ic_pause : @drawable/ic_play}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:src="@drawable/ic_play"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

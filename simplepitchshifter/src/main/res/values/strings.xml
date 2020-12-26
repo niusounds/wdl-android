@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PitchShifter</string>
+    <string name="label">Tap play button to start processing.</string>
+    <string name="label_while_playing">Tap pause button to stop processing.</string>
+</resources>
