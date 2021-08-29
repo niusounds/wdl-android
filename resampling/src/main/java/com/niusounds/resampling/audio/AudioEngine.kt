@@ -42,7 +42,6 @@ class AudioEngine(
                         .setEncoding(format)
                         .build()
                 )
-//                .setBufferSizeInBytes(bufferSize)
                 .setBufferSizeInBytes(
                     AudioTrack.getMinBufferSize(
                         outSampleRate,
@@ -71,7 +70,6 @@ class AudioEngine(
                         .setEncoding(format)
                         .build()
                 )
-//                .setBufferSizeInBytes(bufferSize)
                 .setBufferSizeInBytes(
                     AudioRecord.getMinBufferSize(
                         inSampleRate,
@@ -93,7 +91,7 @@ class AudioEngine(
             record.startRecording()
 
             while (!Thread.interrupted()) {
-                if (!record.fillBuffer(inBuffer, bufferSize)) {
+                if (!record.fillBuffer(inBuffer)) {
                     Log.e(tag, "cannot fill buffer")
                     break
                 }
@@ -117,29 +115,7 @@ class AudioEngine(
     }
 
     private fun AudioRecord.fillBuffer(
-        buffer: FloatArray,
-        bufferSize: Int,
-        mode: Int = AudioRecord.READ_BLOCKING
-    ): Boolean {
-        var offset = 0
-        while (offset < bufferSize) {
-            val readSize = read(buffer, offset, bufferSize - offset, mode)
-            if (readSize < 0) {
-                return false
-            }
-            offset += readSize
-        }
-
-        if (offset < bufferSize) {
-            return false
-        }
-
-        return true
-    }
-
-    private fun AudioRecord.fillBuffer(
         buffer: ByteBuffer,
-        bufferSize: Int,
         mode: Int = AudioRecord.READ_BLOCKING
     ): Boolean {
         buffer.position(0)
