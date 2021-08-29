@@ -1,5 +1,4 @@
-include ':resampling'
-include ':simplepitchshifter'
 include ':wdl'
-include ':app'
-rootProject.name = "WDLSample"
+include ':samples:app'
+include ':samples:resampling'
+include ':samples:simplepitchshifter'
