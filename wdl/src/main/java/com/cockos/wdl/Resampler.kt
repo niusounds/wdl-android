@@ -55,6 +55,9 @@ class Resampler {
     fun resamplePrepare(reqSamples: Int, nch: Int, buffer: ByteBuffer) =
         nativeResamplePrepare(nativePtr, reqSamples, nch, buffer)
 
+    fun resamplePrepareFloatArray(reqSamples: Int, nch: Int, buffer: FloatArray) =
+        nativeResamplePrepareFloatArray(nativePtr, reqSamples, nch, buffer)
+
     fun resampleOut(
         out: ByteBuffer,
         nsamplesIn: Int,
@@ -83,6 +86,13 @@ class Resampler {
         reqSamples: Int,
         nch: Int,
         buffer: ByteBuffer,
+    ): Int
+
+    private external fun nativeResamplePrepareFloatArray(
+        ptr: Long,
+        reqSamples: Int,
+        nch: Int,
+        buffer: FloatArray,
     ): Int
 
     private external fun nativeResampleOut(

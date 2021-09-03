@@ -91,6 +91,21 @@ Java_com_cockos_wdl_Resampler_nativeResamplePrepare(JNIEnv *env, jobject thiz, j
 }
 
 JNIEXPORT jint JNICALL
+Java_com_cockos_wdl_Resampler_nativeResamplePrepareFloatArray(JNIEnv *env, jobject thiz, jlong ptr,
+                                                              jint reqSamples, jint nch,
+                                                              jfloatArray buffer) {
+    auto resampler = reinterpret_cast<WDL_Resampler *>(ptr);
+    auto bufferPtr = env->GetFloatArrayElements(buffer, nullptr);
+    float *inbuffers;
+    int count = resampler->ResamplePrepare(reqSamples, nch, &inbuffers);
+    for (int i = 0; i < count; ++i) {
+        inbuffers[i] = bufferPtr[i];
+    }
+    env->ReleaseFloatArrayElements(buffer, bufferPtr, 0);
+    return count;
+}
+
+JNIEXPORT jint JNICALL
 Java_com_cockos_wdl_Resampler_nativeResampleOut(JNIEnv *env, jobject thiz, jlong ptr, jobject out,
                                                 jint nsamplesIn, jint nsamplesOut, jint nch) {
     auto resampler = reinterpret_cast<WDL_Resampler *>(ptr);
