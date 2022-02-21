@@ -12,8 +12,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = 'wdl-android'
-include ':wdl'
-include ':samples:app'
-include ':samples:resampling'
-include ':samples:simplepitchshifter'
+rootProject.name = "wdl-android"
+include(":wdl")
+include(":samples:app")
+include(":samples:resampling")
+include(":samples:simplepitchshifter")
