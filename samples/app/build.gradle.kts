@@ -1,15 +1,14 @@
 plugins {
-    id 'sample.conventions'
+    id("sample.conventions")
 }
 
 android {
     defaultConfig {
-        applicationId "com.niusounds.wdlsample"
+        applicationId = "com.niusounds.wdlsample"
     }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation(libs.core)
     implementation(libs.appcompat)
     implementation(libs.material)

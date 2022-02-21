@@ -1,24 +1,24 @@
 plugins {
-    id 'sample.conventions'
+    id("sample.conventions")
 }
 
 android {
     defaultConfig {
-        applicationId "com.niusounds.resampling"
+        applicationId = "com.niusounds.simplepitchshifter"
     }
     buildFeatures {
-        dataBinding true
+        dataBinding = true
     }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation(libs.coroutines.core)
     implementation(libs.core)
+    implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
     implementation(libs.viewmodel)
     implementation(libs.livedata)
     implementation(libs.activity.ktx)
     implementation(libs.fragment.ktx)
+    implementation(libs.coroutines.core)
 }
