@@ -1,13 +1,13 @@
 plugins {
-    id 'sample.conventions'
+    id("sample.conventions")
 }
 
 android {
     defaultConfig {
-        applicationId "com.niusounds.simplepitchshifter"
+        applicationId = "com.niusounds.simplepitchshifter"
     }
     buildFeatures {
-        dataBinding true
+        dataBinding = true
     }
 }
 

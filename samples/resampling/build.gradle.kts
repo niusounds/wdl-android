@@ -1,13 +1,13 @@
 plugins {
-    id 'sample.conventions'
+    id("sample.conventions")
 }
 
 android {
     defaultConfig {
-        applicationId "com.niusounds.resampling"
+        applicationId = "com.niusounds.resampling"
     }
     buildFeatures {
-        dataBinding true
+        dataBinding = true
     }
 }
 

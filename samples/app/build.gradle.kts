@@ -1,10 +1,10 @@
 plugins {
-    id 'sample.conventions'
+    id("sample.conventions")
 }
 
 android {
     defaultConfig {
-        applicationId "com.niusounds.wdlsample"
+        applicationId = "com.niusounds.wdlsample"
     }
 }
 
