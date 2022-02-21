@@ -3,10 +3,6 @@ plugins {
     id 'kotlin-android'
 }
 
-repositories {
-    mavenCentral()
-}
-
 android {
     compileSdk 31
 
