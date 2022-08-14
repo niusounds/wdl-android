@@ -1,5 +1,5 @@
 [versions]
-coroutines = "1.6.0"
+coroutines = "1.6.4"
 lifecycle = "2.4.1"
 
 [libraries]
