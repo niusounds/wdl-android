@@ -4,6 +4,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.AudioTrack
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Process
 import android.util.Log
 import java.nio.ByteBuffer
@@ -16,6 +17,7 @@ class AudioEngine(private val sampleRate: Int, private val channels: Int) {
 
     private var writeThread: Thread? = null
 
+    @SuppressWarnings("MissingPermission")
     fun start(processor: IAudioProcessor) {
         writeThread = thread {
             Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
@@ -23,8 +25,8 @@ class AudioEngine(private val sampleRate: Int, private val channels: Int) {
             val format = AudioFormat.ENCODING_PCM_FLOAT
             val bufferSize = 3840
 
-            val track = AudioTrack.Builder()
-                .setAudioFormat(
+            val track = audioTrack {
+                setAudioFormat(
                     AudioFormat.Builder()
                         .setSampleRate(sampleRate)
                         .setChannelMask(
@@ -37,8 +39,8 @@ class AudioEngine(private val sampleRate: Int, private val channels: Int) {
                         .setEncoding(format)
                         .build()
                 )
-//                .setBufferSizeInBytes(bufferSize)
-                .setBufferSizeInBytes(
+//                setBufferSizeInBytes(bufferSize)
+                setBufferSizeInBytes(
                     AudioTrack.getMinBufferSize(
                         sampleRate,
                         when (channels) {
@@ -49,8 +51,11 @@ class AudioEngine(private val sampleRate: Int, private val channels: Int) {
                         format
                     )
                 )
-                .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
-                .build()
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
+                }
+            }
 
             val record = AudioRecord.Builder()
                 .setAudioFormat(
@@ -154,3 +159,7 @@ class AudioEngine(private val sampleRate: Int, private val channels: Int) {
         return true
     }
 }
+
+fun audioTrack(block: AudioTrack.Builder.() -> Unit): AudioTrack = AudioTrack.Builder()
+    .apply(block)
+    .build()

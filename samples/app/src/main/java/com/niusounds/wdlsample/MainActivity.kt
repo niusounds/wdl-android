@@ -1,12 +1,14 @@
 package com.niusounds.wdlsample
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioRecord
 import android.media.AudioTrack
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Bundle
 import android.os.Process
 import android.util.Log
@@ -54,11 +56,13 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startAudio()
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun startAudio() {
         val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         val sampleRate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt()
@@ -71,17 +75,20 @@ class MainActivity : AppCompatActivity() {
 //                    AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, format),
 //                    AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, format),
 //                )
-            val track = AudioTrack.Builder()
-                .setAudioFormat(
+            val track = audioTrack {
+                setAudioFormat(
                     AudioFormat.Builder()
                         .setSampleRate(sampleRate)
                         .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                         .setEncoding(format)
                         .build()
                 )
-                .setBufferSizeInBytes(bufferSize)
-                .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
-                .build()
+                setBufferSizeInBytes(bufferSize)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
+                }
+            }
 
             val record = AudioRecord.Builder()
                 .setAudioFormat(
@@ -162,3 +169,7 @@ class MainActivity : AppCompatActivity() {
         audioThread = null
     }
 }
+
+fun audioTrack(block: AudioTrack.Builder.() -> Unit): AudioTrack = AudioTrack.Builder()
+    .apply(block)
+    .build()

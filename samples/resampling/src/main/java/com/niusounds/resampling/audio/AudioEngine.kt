@@ -4,6 +4,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.AudioTrack
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Process
 import android.util.Log
 import java.nio.ByteBuffer
@@ -21,6 +22,7 @@ class AudioEngine(
 
     private var writeThread: Thread? = null
 
+    @SuppressWarnings("MissingPermission")
     fun start() {
         writeThread = thread {
             Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
@@ -28,8 +30,8 @@ class AudioEngine(
             val format = AudioFormat.ENCODING_PCM_FLOAT
             val bufferSize = 3840
 
-            val track = AudioTrack.Builder()
-                .setAudioFormat(
+            val track = audioTrack {
+                setAudioFormat(
                     AudioFormat.Builder()
                         .setSampleRate(outSampleRate)
                         .setChannelMask(
@@ -42,7 +44,7 @@ class AudioEngine(
                         .setEncoding(format)
                         .build()
                 )
-                .setBufferSizeInBytes(
+                setBufferSizeInBytes(
                     AudioTrack.getMinBufferSize(
                         outSampleRate,
                         when (channels) {
@@ -53,8 +55,11 @@ class AudioEngine(
                         format
                     )
                 )
-                .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
-                .build()
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
+                }
+            }
 
             val record = AudioRecord.Builder()
                 .setAudioFormat(
@@ -131,3 +136,7 @@ class AudioEngine(
         return true
     }
 }
+
+fun audioTrack(block: AudioTrack.Builder.() -> Unit): AudioTrack = AudioTrack.Builder()
+    .apply(block)
+    .build()
