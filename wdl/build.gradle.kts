@@ -8,7 +8,7 @@ group = "com.github.niusounds"
 version = "0.0.1"
 
 android {
-    compileSdk = 31
+    compileSdk = 32
 
     defaultConfig {
         externalNativeBuild {
