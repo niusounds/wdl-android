@@ -1,10 +1,29 @@
 package com.niusounds.wdlsample
 
-class SineWaveGeneratorDemo : Demo {
-    override fun start() {
+import android.content.Context
+import com.cockos.wdl.SineWaveGenerator
+
+class SineWaveGeneratorDemo(
+    context: Context,
+    val volumeGain: Double,
+) : AudioDemo(context, useInput = false) {
+    private var sineWaveGenerator: SineWaveGenerator? = null
+
+    override fun init(sampleRate: Int, bufferSize: Int) {
+        sineWaveGenerator = SineWaveGenerator().apply {
+            setSetFreq(440.0 / sampleRate)
+        }
     }
 
-    override fun stop() {
+    override fun process(audioData: FloatArray) {
+        val sineWaveGenerator = sineWaveGenerator ?: return
+        for (i in audioData.indices) {
+            audioData[i] = (sineWaveGenerator.gen() * volumeGain).toFloat()
+        }
     }
 
+    override fun release() {
+        sineWaveGenerator?.release()
+        sineWaveGenerator = null
+    }
 }

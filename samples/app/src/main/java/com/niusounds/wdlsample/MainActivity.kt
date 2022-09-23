@@ -14,7 +14,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,7 +35,6 @@ class MainActivity : AppCompatActivity() {
                 permission = android.Manifest.permission.RECORD_AUDIO
             )
 
-            val scope = rememberCoroutineScope()
             MaterialTheme {
                 App(
                     onStartPitchShiftDemo = {
@@ -50,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     },
                     onStartSineWaveGenerator = {
-                        startDemo(SineWaveGeneratorDemo())
+                        startDemo(SineWaveGeneratorDemo(this, volumeGain = 0.2))
                     }
                 )
             }
