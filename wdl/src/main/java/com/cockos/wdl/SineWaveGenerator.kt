@@ -26,6 +26,9 @@ class SineWaveGenerator {
         nativePtr = nativeInit()
     }
 
+    /**
+     * Release native resources.
+     */
     fun release() {
         if (nativePtr != 0L) {
             nativeRelease(nativePtr)
@@ -33,6 +36,9 @@ class SineWaveGenerator {
         }
     }
 
+    /**
+     * Reset internal state.
+     */
     fun reset() = nativeReset(nativePtr)
 
     /**
@@ -40,7 +46,15 @@ class SineWaveGenerator {
      * [freq] is `frequency / samplerate`. (so 0..1 is valid, though over 0.3 is probably not a good idea)
      */
     fun setFreq(freq: Double) = nativeSetFreq(nativePtr, freq)
+
+    /**
+     * Get next sine sample.
+     */
     fun gen() = nativeGen(nativePtr)
+
+    /**
+     * call BEFORE [gen] if you want the cosine of the next value
+     */
     fun getNextCos() = nativeGetNextCos(nativePtr)
 
     private external fun nativeInit(): Long
