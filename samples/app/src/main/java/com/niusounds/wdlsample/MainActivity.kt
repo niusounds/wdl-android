@@ -14,6 +14,10 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,7 +27,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 
 class MainActivity : AppCompatActivity() {
 
-    private var demo: Demo? = null
+    private var demo: Demo? by mutableStateOf(null)
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,20 +39,36 @@ class MainActivity : AppCompatActivity() {
                 permission = android.Manifest.permission.RECORD_AUDIO
             )
 
+            val runningDemoType: DemoType? by derivedStateOf {
+                when (demo) {
+                    is PitchShift -> DemoType.PitchShifter
+                    is SineWaveGeneratorDemo -> DemoType.SineWaveGenerator
+                    else -> null
+                }
+            }
+
             MaterialTheme {
                 App(
-                    onStartPitchShiftDemo = {
-                        when (micPermissionstate.status) {
-                            is PermissionStatus.Denied -> {
-                                micPermissionstate.launchPermissionRequest()
+                    running = runningDemoType,
+                    onStart = { demoType ->
+                        when (demoType) {
+                            DemoType.PitchShifter -> {
+                                when (micPermissionstate.status) {
+                                    is PermissionStatus.Denied -> {
+                                        micPermissionstate.launchPermissionRequest()
+                                    }
+                                    PermissionStatus.Granted -> {
+                                        startDemo(PitchShift(this))
+                                    }
+                                }
                             }
-                            PermissionStatus.Granted -> {
-                                startDemo(PitchShift(this))
+                            DemoType.SineWaveGenerator -> {
+                                startDemo(SineWaveGeneratorDemo(this, volumeGain = 0.2))
                             }
                         }
                     },
-                    onStartSineWaveGenerator = {
-                        startDemo(SineWaveGeneratorDemo(this, volumeGain = 0.2))
+                    onStop = {
+                        stopDemo()
                     }
                 )
             }
@@ -56,22 +76,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startDemo(newDemo: Demo) {
-        demo?.stop()
+        stopDemo()
         demo = newDemo
         newDemo.start()
     }
 
     override fun onDestroy() {
-        demo?.stop()
-        demo = null
+        stopDemo()
         super.onDestroy()
     }
+
+    private fun stopDemo() {
+        demo?.stop()
+        demo = null
+    }
+}
+
+enum class DemoType {
+    PitchShifter,
+    SineWaveGenerator,
 }
 
 @Composable
 private fun App(
-    onStartPitchShiftDemo: () -> Unit = {},
-    onStartSineWaveGenerator: () -> Unit = {},
+    running: DemoType? = null,
+    onStart: (DemoType) -> Unit = {},
+    onStop: () -> Unit = {},
 ) {
     Scaffold(topBar = {
         TopAppBar(title = { Text("WDL Sample") })
@@ -87,14 +117,23 @@ private fun App(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Button(
-                    onClick = onStartPitchShiftDemo,
+                    enabled = running != DemoType.PitchShifter,
+                    onClick = { onStart(DemoType.PitchShifter) },
                 ) {
                     Text(text = "Pitch shifter")
                 }
                 Button(
-                    onClick = onStartSineWaveGenerator,
+                    enabled = running != DemoType.SineWaveGenerator,
+                    onClick = { onStart(DemoType.SineWaveGenerator) },
                 ) {
                     Text(text = "Sine wave generator")
+                }
+
+                Button(
+                    enabled = running != null,
+                    onClick = onStop,
+                ) {
+                    Text(text = "Stop demo")
                 }
             }
         }

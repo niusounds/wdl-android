@@ -17,8 +17,23 @@ abstract class AudioDemo(
 ) : Demo {
     private var audioThread: Thread? = null
 
+    /**
+     * Called from audio thread before processing audio samples.
+     * Do one time initialization such as instantiating WDL classes.
+     */
     abstract fun init(sampleRate: Int, bufferSize: Int)
+
+    /**
+     * Called from audio thread.
+     * If `useInput = true`, [audioData] will be prefilled with recorded samples.
+     * Override this method and process, fill audio samples into [audioData].
+     */
     abstract fun process(audioData: FloatArray)
+
+    /**
+     * Called from audio thread when [Demo.stop] was called.
+     * In this method, release native resources such as WDL classes created in [init].
+     */
     abstract fun release()
 
     override fun start() {
