@@ -34,7 +34,12 @@ class SineWaveGenerator {
     }
 
     fun reset() = nativeReset(nativePtr)
-    fun setSetFreq(freq: Double) = nativeSetFreq(nativePtr, freq)
+
+    /**
+     * Call this before calling [gen], or on freq change, or after a [reset].
+     * [freq] is `frequency / samplerate`. (so 0..1 is valid, though over 0.3 is probably not a good idea)
+     */
+    fun setFreq(freq: Double) = nativeSetFreq(nativePtr, freq)
     fun gen() = nativeGen(nativePtr)
     fun getNextCos() = nativeGetNextCos(nativePtr)
 

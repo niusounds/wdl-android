@@ -11,7 +11,7 @@ class SineWaveGeneratorDemo(
 
     override fun init(sampleRate: Int, bufferSize: Int) {
         sineWaveGenerator = SineWaveGenerator().apply {
-            setSetFreq(440.0 / sampleRate)
+            setFreq(440.0 / sampleRate)
         }
     }
 
