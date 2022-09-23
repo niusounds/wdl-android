@@ -11,6 +11,7 @@ add_library(
         jni/fft.cpp
         jni/resample.cpp
         jni/simple_pitchshift.cpp
+        jni/sinewavegen.cpp
 )
 
 target_link_libraries(wdl log)
