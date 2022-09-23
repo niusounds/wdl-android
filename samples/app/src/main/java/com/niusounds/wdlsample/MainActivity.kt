@@ -1,55 +1,112 @@
 package com.niusounds.wdlsample
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
 
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        private const val tag = "WDLSample"
-        private const val requestCode = 1001
-    }
+    private var demo: Demo? = null
 
-    private lateinit var pitchShift: PitchShift
-
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        pitchShift = PitchShift(this)
-
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            pitchShift.startAudio()
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.RECORD_AUDIO),
-                requestCode
+        setContent {
+            val micPermissionstate = rememberPermissionState(
+                permission = android.Manifest.permission.RECORD_AUDIO
             )
+
+            val scope = rememberCoroutineScope()
+            MaterialTheme {
+                App(
+                    onStartPitchShiftDemo = {
+                        when (micPermissionstate.status) {
+                            is PermissionStatus.Denied -> {
+                                micPermissionstate.launchPermissionRequest()
+                            }
+                            PermissionStatus.Granted -> {
+                                startDemo(PitchShift(this))
+                            }
+                        }
+                    },
+                    onStartSineWaveGenerator = {
+                        startDemo(SineWaveGeneratorDemo())
+                    }
+                )
+            }
         }
+    }
+
+    private fun startDemo(newDemo: Demo) {
+        demo?.stop()
+        demo = newDemo
+        newDemo.start()
     }
 
     override fun onDestroy() {
-        pitchShift.stopAudio()
+        demo?.stop()
+        demo = null
         super.onDestroy()
     }
+}
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            pitchShift.startAudio()
+@Composable
+private fun App(
+    onStartPitchShiftDemo: () -> Unit = {},
+    onStartSineWaveGenerator: () -> Unit = {},
+) {
+    Scaffold(topBar = {
+        TopAppBar(title = { Text("WDL Sample") })
+    }) { paddings ->
+        Box(
+            Modifier
+                .padding(paddings)
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Button(
+                    onClick = onStartPitchShiftDemo,
+                ) {
+                    Text(text = "Pitch shifter")
+                }
+                Button(
+                    onClick = onStartSineWaveGenerator,
+                ) {
+                    Text(text = "Sine wave generator")
+                }
+            }
         }
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun PreviewApp() {
+    MaterialTheme {
+        App()
     }
 }

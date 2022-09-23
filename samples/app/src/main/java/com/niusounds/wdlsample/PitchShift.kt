@@ -1,10 +1,8 @@
 package com.niusounds.wdlsample
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioManager
-import android.media.AudioRecord
 import android.media.AudioTrack
 import android.media.MediaRecorder
 import android.os.Build
@@ -15,11 +13,10 @@ import kotlin.concurrent.thread
 
 class PitchShift(
     private val context: Context,
-) {
+) : Demo {
     private var audioThread: Thread? = null
 
-    @SuppressLint("MissingPermission")
-    fun startAudio() {
+    override fun start() {
         audioThread?.let { it.interrupt();it.join() }
         val audioManager: AudioManager = context.getSystemService()!!
         val sampleRate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt()
@@ -47,17 +44,17 @@ class PitchShift(
                 }
             }
 
-            val record = AudioRecord.Builder()
-                .setAudioFormat(
-                    AudioFormat.Builder()
-                        .setSampleRate(sampleRate)
-                        .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-                        .setEncoding(format)
-                        .build()
+            val record = audioRecord {
+                setAudioFormat(
+                    audioFormat {
+                        setSampleRate(sampleRate)
+                        setChannelMask(AudioFormat.CHANNEL_IN_MONO)
+                        setEncoding(format)
+                    }
                 )
-                .setBufferSizeInBytes(bufferSize)
-                .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
-                .build()
+                setBufferSizeInBytes(bufferSize)
+                setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+            }
 
             val buffer = FloatArray(bufferSize)
             track.play()
@@ -100,30 +97,9 @@ class PitchShift(
         }
     }
 
-    fun stopAudio() {
+    override fun stop() {
         audioThread?.interrupt()
         audioThread?.join()
         audioThread = null
     }
-}
-
-fun audioTrack(block: AudioTrack.Builder.() -> Unit): AudioTrack = AudioTrack.Builder()
-    .apply(block)
-    .build()
-
-fun AudioRecord.fillBuffer(
-    buffer: FloatArray,
-    bufferSize: Int,
-    mode: Int = AudioRecord.READ_BLOCKING
-): Boolean {
-    var offset = 0
-    while (offset < bufferSize) {
-        val readSize = read(buffer, offset, bufferSize - offset, mode)
-        if (readSize < 0) {
-            return false
-        }
-        offset += readSize
-    }
-
-    return true
 }
