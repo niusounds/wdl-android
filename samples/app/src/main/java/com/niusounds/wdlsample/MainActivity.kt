@@ -1,175 +1,149 @@
 package com.niusounds.wdlsample
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.media.AudioFormat
-import android.media.AudioManager
-import android.media.AudioRecord
-import android.media.AudioTrack
-import android.media.MediaRecorder
-import android.os.Build
 import android.os.Bundle
-import android.os.Process
-import android.util.Log
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.cockos.wdl.SimplePitchShifter
-import kotlin.concurrent.thread
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
 
 class MainActivity : AppCompatActivity() {
 
-    companion object {
-        private const val tag = "WDLSample"
-        private const val requestCode = 1001
-    }
+    private var demo: Demo? by mutableStateOf(null)
 
-    private var audioThread: Thread? = null
-
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            startAudio()
-        } else {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.RECORD_AUDIO),
-                requestCode
+        setContent {
+            val micPermissionstate = rememberPermissionState(
+                permission = android.Manifest.permission.RECORD_AUDIO
             )
+
+            val runningDemoType: DemoType? by derivedStateOf {
+                when (demo) {
+                    is PitchShift -> DemoType.PitchShifter
+                    is SineWaveGeneratorDemo -> DemoType.SineWaveGenerator
+                    else -> null
+                }
+            }
+
+            MaterialTheme {
+                App(
+                    running = runningDemoType,
+                    onStart = { demoType ->
+                        when (demoType) {
+                            DemoType.PitchShifter -> {
+                                when (micPermissionstate.status) {
+                                    is PermissionStatus.Denied -> {
+                                        micPermissionstate.launchPermissionRequest()
+                                    }
+                                    PermissionStatus.Granted -> {
+                                        startDemo(PitchShift(this))
+                                    }
+                                }
+                            }
+                            DemoType.SineWaveGenerator -> {
+                                startDemo(SineWaveGeneratorDemo(this, volumeGain = 0.2))
+                            }
+                        }
+                    },
+                    onStop = {
+                        stopDemo()
+                    }
+                )
+            }
         }
+    }
+
+    private fun startDemo(newDemo: Demo) {
+        stopDemo()
+        demo = newDemo
+        newDemo.start()
     }
 
     override fun onDestroy() {
-        stopAudio()
+        stopDemo()
         super.onDestroy()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startAudio()
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun startAudio() {
-        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        val sampleRate = audioManager.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE).toInt()
-        audioThread = thread {
-            Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
-
-            val format = AudioFormat.ENCODING_PCM_FLOAT
-            val bufferSize = 4096
-//                max(
-//                    AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, format),
-//                    AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, format),
-//                )
-            val track = audioTrack {
-                setAudioFormat(
-                    AudioFormat.Builder()
-                        .setSampleRate(sampleRate)
-                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                        .setEncoding(format)
-                        .build()
-                )
-                setBufferSizeInBytes(bufferSize)
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY)
-                }
-            }
-
-            val record = AudioRecord.Builder()
-                .setAudioFormat(
-                    AudioFormat.Builder()
-                        .setSampleRate(sampleRate)
-                        .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-                        .setEncoding(format)
-                        .build()
-                )
-                .setBufferSizeInBytes(bufferSize)
-                .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
-                .build()
-
-            val buffer = FloatArray(bufferSize)
-            track.play()
-            record.startRecording()
-
-//            val fft = FFT()
-            val pitchShifter = SimplePitchShifter(bufferSize).apply {
-                setNch(1)
-//                setTempo(120.0)
-                setSrate(sampleRate.toDouble())
-                setShift(2.0)
-                prepare()
-            }
-
-            while (!Thread.interrupted()) {
-
-                if (!record.fillBuffer(buffer, bufferSize)) break
-
-                pitchShifter.write(buffer, bufferSize)
-                pitchShifter.bufferDone(bufferSize)
-                val size = pitchShifter.getSamples(buffer, bufferSize)
-                if (pitchShifter.isReset()) {
-                    Log.d(tag, "reset")
-                }
-
-//                fft.realFft(buffer, bufferSize, false)
-
-                // process buffer[0..bufferSize/2]
-//                Log.d(tag, "0:${buffer[0]} 1:${buffer[1]} 2:${buffer[2]}")
-
-                track.write(buffer, 0, bufferSize, AudioTrack.WRITE_BLOCKING)
-            }
-
-            track.stop()
-            track.release()
-            record.stop()
-            record.release()
-        }
-    }
-
-    private fun AudioRecord.fillBuffer(
-        buffer: FloatArray,
-        bufferSize: Int,
-        mode: Int = AudioRecord.READ_BLOCKING
-    ): Boolean {
-        var offset = 0
-        while (offset < bufferSize) {
-            val readSize = read(buffer, offset, bufferSize - offset, mode)
-            if (readSize < 0) {
-                return false
-            }
-            offset += readSize
-        }
-
-        if (offset < bufferSize) {
-            Log.e(tag, "cannot fill buffer")
-            return false
-        }
-
-        return true
-    }
-
-    private fun stopAudio() {
-        audioThread?.interrupt()
-        audioThread?.join()
-        audioThread = null
+    private fun stopDemo() {
+        demo?.stop()
+        demo = null
     }
 }
 
-fun audioTrack(block: AudioTrack.Builder.() -> Unit): AudioTrack = AudioTrack.Builder()
-    .apply(block)
-    .build()
+enum class DemoType {
+    PitchShifter,
+    SineWaveGenerator,
+}
+
+@Composable
+private fun App(
+    running: DemoType? = null,
+    onStart: (DemoType) -> Unit = {},
+    onStop: () -> Unit = {},
+) {
+    Scaffold(topBar = {
+        TopAppBar(title = { Text("WDL Sample") })
+    }) { paddings ->
+        Box(
+            Modifier
+                .padding(paddings)
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Button(
+                    enabled = running != DemoType.PitchShifter,
+                    onClick = { onStart(DemoType.PitchShifter) },
+                ) {
+                    Text(text = "Pitch shifter")
+                }
+                Button(
+                    enabled = running != DemoType.SineWaveGenerator,
+                    onClick = { onStart(DemoType.SineWaveGenerator) },
+                ) {
+                    Text(text = "Sine wave generator")
+                }
+
+                Button(
+                    enabled = running != null,
+                    onClick = onStop,
+                ) {
+                    Text(text = "Stop demo")
+                }
+            }
+        }
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun PreviewApp() {
+    MaterialTheme {
+        App()
+    }
+}
