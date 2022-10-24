@@ -11,7 +11,7 @@ annotation = "androidx.annotation:annotation:1.5.0"
 appcompat = "androidx.appcompat:appcompat:1.5.1"
 constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.4"
 core = "androidx.core:core-ktx:1.9.0"
-fragment-ktx = "androidx.fragment:fragment-ktx:1.5.3"
+fragment-ktx = "androidx.fragment:fragment-ktx:1.5.4"
 material = "com.google.android.material:material:1.7.0"
 
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
