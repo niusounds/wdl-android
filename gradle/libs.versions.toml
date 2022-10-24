@@ -6,7 +6,7 @@ coroutines = "1.6.4"
 lifecycle = "2.5.1"
 
 [libraries]
-activity-ktx = "androidx.activity:activity-ktx:1.6.0"
+activity-ktx = "androidx.activity:activity-ktx:1.6.1"
 annotation = "androidx.annotation:annotation:1.5.0"
 appcompat = "androidx.appcompat:appcompat:1.5.1"
 constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.4"
@@ -21,7 +21,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
 compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
-compose-activity = "androidx.activity:activity-compose:1.6.0"
+compose-activity = "androidx.activity:activity-compose:1.6.1"
 
 lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
 viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
