@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,11 +40,13 @@ class MainActivity : AppCompatActivity() {
                 permission = android.Manifest.permission.RECORD_AUDIO
             )
 
-            val runningDemoType: DemoType? by derivedStateOf {
-                when (demo) {
-                    is PitchShift -> DemoType.PitchShifter
-                    is SineWaveGeneratorDemo -> DemoType.SineWaveGenerator
-                    else -> null
+            val runningDemoType: DemoType? by remember {
+                derivedStateOf {
+                    when (demo) {
+                        is PitchShift -> DemoType.PitchShifter
+                        is SineWaveGeneratorDemo -> DemoType.SineWaveGenerator
+                        else -> null
+                    }
                 }
             }
 
