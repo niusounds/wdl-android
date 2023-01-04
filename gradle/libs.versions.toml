@@ -32,7 +32,7 @@ coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", ve
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 
 # test
-android-test = "androidx.test.ext:junit:1.1.4"
+android-test = "androidx.test.ext:junit:1.1.5"
 espresso = "androidx.test.espresso:espresso-core:3.5.1"
 junit = "junit:junit:4.13.2"
 mockk = "io.mockk:mockk:1.13.3"
