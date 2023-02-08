@@ -8,7 +8,7 @@ lifecycle = "2.5.1"
 [libraries]
 activity-ktx = "androidx.activity:activity-ktx:1.6.1"
 annotation = "androidx.annotation:annotation:1.5.0"
-appcompat = "androidx.appcompat:appcompat:1.6.0"
+appcompat = "androidx.appcompat:appcompat:1.6.1"
 constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.4"
 core = "androidx.core:core-ktx:1.9.0"
 fragment-ktx = "androidx.fragment:fragment-ktx:1.5.5"
