@@ -3,6 +3,7 @@ plugins {
 }
 
 android {
+    namespace = "com.niusounds.wdlsample"
     defaultConfig {
         applicationId = "com.niusounds.wdlsample"
     }

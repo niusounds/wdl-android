@@ -3,6 +3,7 @@ plugins {
 }
 
 android {
+    namespace = "com.niusounds.simplepitchshifter"
     defaultConfig {
         applicationId = "com.niusounds.simplepitchshifter"
     }

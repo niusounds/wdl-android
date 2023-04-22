@@ -3,6 +3,7 @@ plugins {
 }
 
 android {
+    namespace = "com.niusounds.resampling"
     defaultConfig {
         applicationId = "com.niusounds.resampling"
     }
