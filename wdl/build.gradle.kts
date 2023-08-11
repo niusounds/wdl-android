@@ -9,7 +9,7 @@ version = "0.0.1"
 
 android {
     namespace = "com.cockos.wdl"
-    compileSdk = 32
+    compileSdk = 34
 
     defaultConfig {
         externalNativeBuild {
