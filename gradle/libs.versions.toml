@@ -3,7 +3,7 @@ accompanist = "0.32.0"
 compose-bom = "2023.08.00"
 composeCompiler = "1.5.1"
 coroutines = "1.7.3"
-lifecycle = "2.6.1"
+lifecycle = "2.6.2"
 
 [libraries]
 activity-ktx = "androidx.activity:activity-ktx:1.7.2"
