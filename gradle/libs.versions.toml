@@ -6,7 +6,7 @@ coroutines = "1.7.3"
 lifecycle = "2.6.2"
 
 [libraries]
-activity-ktx = "androidx.activity:activity-ktx:1.7.2"
+activity-ktx = "androidx.activity:activity-ktx:1.8.0"
 annotation = "androidx.annotation:annotation:1.7.0"
 appcompat = "androidx.appcompat:appcompat:1.6.1"
 constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.4"
