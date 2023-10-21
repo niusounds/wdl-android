@@ -38,7 +38,12 @@ class AudioProcessingService : Service() {
                 audioProcessor?.configure(key, value)
             }
         }
-        registerReceiver(receiver, IntentFilter(configureAction))
+        ContextCompat.registerReceiver(
+            this,
+            receiver,
+            IntentFilter(configureAction),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
